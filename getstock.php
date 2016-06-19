@@ -19,6 +19,11 @@ asort($code);
    <script src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
    <script src="https://cdn.datatables.net/1.10.12/js/dataTables.bootstrap.min.js"></script>
    <style>
+      body {
+         background: #fffffb;
+         color: #08192D;
+      }
+
       .overlay {
          width: 100vw;
          height: 100vh;
@@ -73,7 +78,7 @@ asort($code);
             <tr>
                <?php foreach ($y->getFields() as $f) : ?>
                   <th <?php
-                  if ($f == 'price') {echo 'style="color: #009;"';};
+                  if ($f == 'price') {echo 'style="color: #08192D;"';};
                   $nosort = ['low', 'high', 'open', 'close', '52w low', '52w high', '50d avg', '200d avg'];
                   if (in_array($f, $nosort)) {echo 'class="no-sort"';};
                   ?>>
@@ -92,11 +97,12 @@ asort($code);
                   <?php foreach ($data as $k => $d) : ?>
                      <td <?php
                         $id = ltrim(trim($data['symbol'], '.hk'), '0');
-                        if ($k == 'price') {echo 'style="color: #009;" id="'.$id.'" class="price"';}
-                        elseif ($k == 'change' && $d < 0) {echo 'style="color: #f00;"';}
-                        elseif ($k == 'change' && $d > 0) {echo 'style="color: #080;"';}
-                        elseif ($k == 'percent' && $d < 0) {echo 'style="color: #f00;"';}
-                        elseif ($k == 'percent' && $d > 0) {echo 'style="color: #080;"';}
+                        if ($k == 'price') {echo 'style="color: #005CAF; font-weight: 700;" id="'.$id.'" class="price"';}
+                        elseif ($k == 'change' && $d < 0) {echo 'style="color: #CB1B45;"';}
+                        elseif ($k == 'change' && $d > 0) {echo 'style="color: #227D51;"';}
+                        elseif ($k == 'percent' && $d < 0) {echo 'style="color: #CB1B45;"';}
+                        elseif ($k == 'percent' && $d > 0) {echo 'style="color: #227D51;"';}
+                        elseif ($k == 'yield') {echo 'style="color: #C7802D; font-weight: 700;"';}
                         elseif ($k == 'market cap. (B)') {$d = trim($d, 'B');};
                      ?>>
                         <?php echo $d == 'N/A' ? '-' : $d;?>
@@ -126,7 +132,7 @@ asort($code);
 
       </table>
       <div id="lastupdate"></div>
-      <div><small>*prices will auto update in every 5 minutes within trading hour</small></div><br>
+      <div><small>*prices will auto update in every 15 minutes within trading hour</small></div><br>
       <div><a class="btn btn-primary" href="savestock.php">change stock list</a></div>
    </div>
 
@@ -145,13 +151,13 @@ asort($code);
 
       $('#datatable').DataTable({
          lengthMenu: [[10, 25, 50, -1], [10, 25, 50, 'ALL']],
-         pageLength: 10,
+         pageLength: -1,
          columnDefs: [
            {targets: 'no-sort', orderable: false},
            {targets: [2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19], searchable: false}
          ],
          dom: '<iflp<t>>',
-         scrollY: '600px'
+         scrollY: '615px'
       })
 
       $('.fa-refresh').click(function(){
@@ -169,6 +175,7 @@ asort($code);
             change.html(d[id].change)
             percent.html(d[id].percent)
             setColor(d[id].change, change, percent)
+            console.log(d[id])
          })
       })
 
@@ -199,9 +206,9 @@ asort($code);
 
             var now = date.getHours()+date.getMinutes()/60
 
-         }, 300000)
+         }, 900000)
 
-         if (now >= 16.5) {
+         if (now >= 16.5 || now <= 9) {
             clearInterval(refresh)
          }
       }
@@ -210,14 +217,14 @@ asort($code);
 
       function setColor(value, change, percent) {
          if (value > 0) {
-            change.css('color', '#080')
-            percent.css('color', '#080')
+            change.css('color', '#227D51')
+            percent.css('color', '#227D51')
          } else if (value < 0) {
-            change.css('color', '#f00')
-            percent.css('color', '#f00')
+            change.css('color', '#CB1B45')
+            percent.css('color', '#CB1B45')
          } else {
-            change.css('color', '#000')
-            percent.css('color', '#000')
+            change.css('color', '#08192D')
+            percent.css('color', '#08192D')
          }
       }
 
