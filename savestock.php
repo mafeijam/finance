@@ -1,6 +1,10 @@
 <?php
 
-$list = file_get_contents('stock.txt');
+if (isset($_POST['save'])) {
+   file_put_contents('stock.txt', $_POST['code']);
+   header('location: getstock.php');
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -10,8 +14,10 @@ $list = file_get_contents('stock.txt');
    <title>list</title>
 </head>
 <body>
-   <textarea cols="120" rows="20">
-      <?php echo trim($list) ?>
-   </textarea>
+   <form method="post">
+      <textarea cols="80" rows="20" name="code"><?php echo file_get_contents('stock.txt') ?></textarea>
+      <p><input type="submit" name="save" value="save"></p>
+   </form>
+
 </body>
 </html>

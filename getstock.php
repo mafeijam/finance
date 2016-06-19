@@ -55,6 +55,15 @@ asort($code);
          display: block;
          width: 100%;
       }
+
+      .rotate {
+         animation: rotate 0.5s
+      }
+
+      @keyframes rotate {
+         from {transform: rotate(0deg);}
+         to {transform: rotate(360deg);}
+      }
    </style>
 </head>
 <body>
@@ -63,13 +72,17 @@ asort($code);
          <thead>
             <tr>
                <?php foreach ($y->getFields() as $f) : ?>
-                  <th <?php if ($f == 'price') {echo 'style="color: #009;"';}; ?>>
+                  <th <?php
+                  if ($f == 'price') {echo 'style="color: #009;"';};
+                  $nosort = ['low', 'high', 'open', 'close', '52w low', '52w high', '50d avg', '200d avg'];
+                  if (in_array($f, $nosort)) {echo 'class="no-sort"';};
+                  ?>>
                      <?php echo $f ?>
                   </th>
                <?php endforeach ?>
-               <th>chart</th>
-               <th>info</th>
-               <th>refresh price</th>
+               <th class="no-sort">chart</th>
+               <th class="no-sort">info</th>
+               <th class="no-sort">refresh price</th>
             </tr>
          </thead>
 
@@ -110,6 +123,7 @@ asort($code);
 
       </table>
       <div id="lastupdate"></div>
+      <div><a href="savestock.php">change stock list</a></div>
    </div>
 
    <div class="overlay">
@@ -126,8 +140,11 @@ asort($code);
       })
 
       $('#datatable').DataTable({
-         paging: false,
-         info: false
+         lengthMenu: [[10, 25, 50, -1], [10, 25, 50, 'ALL']],
+         pageLength: 25,
+         columnDefs: [
+           {targets: 'no-sort', orderable: false}
+         ]
       })
 
       $('.fa-refresh').click(function(){
@@ -135,20 +152,16 @@ asort($code);
          var price = $('#'+id)
          var change = price.next()
          var percent = change.next()
+         var $this = $(this)
+         $(this).addClass('rotate')
+         $(this).one('animationend', function(){
+            $this.removeClass('rotate')
+         })
          $.getJSON('refresh.php').done(function(d){
             price.html(d[id].price)
             change.html(d[id].change)
             percent.html(d[id].percent)
-
-            if (d[id].change > 0) {
-               change.css('color', '#080')
-               percent.css('color', '#080')
-            } else {
-               change.css('color', '#f00')
-               percent.css('color', '#f00')
-            }
-
-            console.log(d[id])
+            setColor(d[id].change, change, percent)
          })
       })
 
@@ -158,11 +171,8 @@ asort($code);
       })
 
       var date = new Date()
-      var today = date.getDay()
-      var hour = date.getHours()
 
-
-      if ($.inArray(today, [1,2,3,4,5]) != '-1') {
+      if ($.inArray(date.getDay(), [1, 2, 3, 4, 5]) != '-1') {
          var refresh = setInterval(function(){
             $.getJSON('refresh.php').done(function(d){
                $.each(ids, function(k, id){
@@ -174,26 +184,47 @@ asort($code);
                   change.html(d[id].change)
                   percent.html(d[id].percent)
 
-                  if (d[id].change > 0) {
-                     change.css('color', '#080')
-                     percent.css('color', '#080')
-                  } else {
-                     change.css('color', '#f00')
-                     percent.css('color', '#f00')
-                  }
+                  setColor(d[id].change, change, percent)
                })
             })
-            var lastupdate = date.getHours() + ':' + date.getMinutes()
-            $('#lastupdate').text('last update at '+lastupdate)
+
+            setLastUpdate($('#lastupdate'))
+
+            var now = date.getHours()+date.getMinutes()/60
+
          }, 300000)
 
-         if (hour >= 16) {
+         if (now >= 16.5) {
             clearInterval(refresh)
          }
       }
 
-      var lastupdate = date.getHours() + ':' + date.getMinutes()
-      $('#lastupdate').text('last update at '+lastupdate)
+      setLastUpdate($('#lastupdate'))
+
+      function setColor(value, change, percent) {
+         if (value > 0) {
+            change.css('color', '#080')
+            percent.css('color', '#080')
+         } else if (value < 0) {
+            change.css('color', '#f00')
+            percent.css('color', '#f00')
+         } else {
+            change.css('color', '#000')
+            percent.css('color', '#000')
+         }
+      }
+
+      function setLastUpdate(target) {
+         var m = String(date.getMinutes())
+
+         if (m.length == 1) {
+            m = '0'+m
+         }
+
+         var lastupdate = date.getHours() + ':' + m
+
+         target.text('last update at '+lastupdate)
+      }
 
    </script>
 

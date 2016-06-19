@@ -17,4 +17,6 @@ foreach ($data as $d) {
 
 $d = array_combine($code, $data);
 
+//$d = ['5' => ['price' => mt_rand(45, 60), 'change' => mt_rand(-5, 5), 'percent' => mt_rand(-5, 5) . '%']];
+
 echo json_encode($d);
