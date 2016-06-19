@@ -109,6 +109,7 @@ asort($code);
          </tbody>
 
       </table>
+      <div id="lastupdate"></div>
    </div>
 
    <div class="overlay">
@@ -156,27 +157,44 @@ asort($code);
          ids.push($(v).children('i').data('id'))
       })
 
-      setInterval(function(){
-         $.getJSON('refresh.php').done(function(d){
-            $.each(ids, function(k, id){
-               var price = $('#'+id)
-               var change = price.next()
-               var percent = change.next()
+      var date = new Date()
+      var today = date.getDay()
+      var hour = date.getHours()
 
-               price.html(d[id].price)
-               change.html(d[id].change)
-               percent.html(d[id].percent)
 
-               if (d[id].change > 0) {
-                  change.css('color', '#080')
-                  percent.css('color', '#080')
-               } else {
-                  change.css('color', '#f00')
-                  percent.css('color', '#f00')
-               }
+      if ($.inArray(today, [1,2,3,4,5]) != '-1') {
+         var refresh = setInterval(function(){
+            $.getJSON('refresh.php').done(function(d){
+               $.each(ids, function(k, id){
+                  var price = $('#'+id)
+                  var change = price.next()
+                  var percent = change.next()
+
+                  price.html(d[id].price)
+                  change.html(d[id].change)
+                  percent.html(d[id].percent)
+
+                  if (d[id].change > 0) {
+                     change.css('color', '#080')
+                     percent.css('color', '#080')
+                  } else {
+                     change.css('color', '#f00')
+                     percent.css('color', '#f00')
+                  }
+               })
             })
-         })
-      }, 300000)
+            var lastupdate = date.getHours() + ':' + date.getMinutes()
+            $('#lastupdate').text('last update at '+lastupdate)
+         }, 300000)
+
+         if (hour >= 16) {
+            clearInterval(refresh)
+         }
+      }
+
+      var lastupdate = date.getHours() + ':' + date.getMinutes()
+      $('#lastupdate').text('last update at '+lastupdate)
+
    </script>
 
 </body>
