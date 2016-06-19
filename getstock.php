@@ -1,73 +1,6 @@
 <?php
 
-class YahooFinanceHK
-{
-   protected $api = 'http://hk.finance.yahoo.com/d/quotes.csv?s=';
-   protected $info = 'snl1c1p2opghjkm3m4rdyj1';
-   protected $fields = [
-      'symbol',
-      'name',
-      'price',
-      'change',
-      'percent',
-      'open',
-      'close',
-      'low',
-      'high',
-      '52w low',
-      '52w high',
-      '50d avg',
-      '200d avg',
-      'PE',
-      'dividend',
-      'yield',
-      'market cap. (B)'
-   ];
-
-   public function setInfo($info)
-   {
-      $this->info = $info;
-      return $this;
-   }
-
-   public function setFields(array $fields)
-   {
-      $this->fields = $fields;
-      return $this;
-   }
-
-   public function getFields()
-   {
-      return $this->fields;
-   }
-
-   public function get($code)
-   {
-      foreach ($this->parseCsv($this->parseCode($code)) as $v) {
-         $r[] = array_combine($this->fields, $v);
-      }
-      return $r;
-   }
-
-   protected function parseCode($code)
-   {
-      $code = is_string($code) ? explode(' ', $code) : $code;
-
-      return implode('+', array_map(function($v) {
-         return $this->getFullStockCode($v);
-      }, $code));
-   }
-
-   protected function parseCsv($code)
-   {
-      return array_map('str_getcsv', file($this->api.$code.'&f='.$this->info));
-   }
-
-   protected function getFullStockCode($value)
-   {
-      return str_repeat('0', 4 - strlen($value)).$value.'.hk';
-   }
-}
+require 'Yahoo.php';
 
 $y = new YahooFinanceHK;
 $code = file('stock.txt', FILE_IGNORE_NEW_LINES);
@@ -136,6 +69,7 @@ asort($code);
                <?php endforeach ?>
                <th>chart</th>
                <th>info</th>
+               <th>refresh</th>
             </tr>
          </thead>
 
@@ -144,11 +78,12 @@ asort($code);
                <tr>
                   <?php foreach ($data as $k => $d) : ?>
                      <td <?php
-                        if ($k == 'price') {echo 'style="color: #009;"';};
-                        if ($k == 'change' && $d < 0) {echo 'style="color: #f00;"';};
-                        if ($k == 'change' && $d > 0) {echo 'style="color: #080;"';};
-                        if ($k == 'percent' && $d < 0) {echo 'style="color: #f00;"';};
-                        if ($k == 'percent' && $d > 0) {echo 'style="color: #080;"';};
+                        $id = ltrim(trim($data['symbol'], '.hk'), '0');
+                        if ($k == 'price') {echo 'style="color: #009;" id="'.$id.'" class="price"';}
+                        elseif ($k == 'change' && $d < 0) {echo 'style="color: #f00;"';}
+                        elseif ($k == 'change' && $d > 0) {echo 'style="color: #080;"';}
+                        elseif ($k == 'percent' && $d < 0) {echo 'style="color: #f00;"';}
+                        elseif ($k == 'percent' && $d > 0) {echo 'style="color: #080;"';};
                      ?>>
                         <?php echo $d == 'N/A' ? '-' : trim($d, 'B');?>
                      </td>
@@ -162,6 +97,10 @@ asort($code);
                      <a class="icon" href="https://www.google.com.hk/finance?q=<?php echo $data['symbol'] ?>" target="_blank">
                         <i class="fa fa-info-circle fa-lg" aria-hidden="true"></i>
                      </a>
+                  </td>
+
+                  <td>
+                     <i class="fa fa-refresh fa-lg" aria-hidden="true" style="cursor: pointer" data-id="<?php echo $id ?>"></i>
                   </td>
 
                </tr>
@@ -179,12 +118,36 @@ asort($code);
       $('.overlay').click(function(){
          $(this).fadeOut()
       })
+
       $('img').click(function(){
          $('.overlay').fadeIn().children('img').attr('src', $(this).attr('src')).css('display', 'flex')
       })
+
       $('#datatable').DataTable({
          paging: false,
          info: false
+      })
+
+      $('.fa-refresh').click(function(){
+         var id = $(this).data('id')
+         var price = $('#'+id)
+         var change = price.next()
+         var percent = change.next()
+         $.getJSON('refresh.php').done(function(d){
+            price.html(d[id].price)
+            change.html(d[id].change)
+            percent.html(d[id].percent)
+
+            if (d[id].change > 0) {
+               change.css('color', '#080')
+               percent.css('color', '#080')
+            } else {
+               change.css('color', '#f00')
+               percent.css('color', '#f00')
+            }
+
+            console.log(d[id])
+         })
       })
    </script>
 
