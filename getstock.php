@@ -21,7 +21,7 @@ class YahooFinanceHK
       'PE',
       'dividend',
       'yield',
-      'market cap.'
+      'market cap. (B)'
    ];
 
    public function setInfo($info)
@@ -150,7 +150,7 @@ asort($code);
                         if ($k == 'percent' && $d < 0) {echo 'style="color: #f00;"';};
                         if ($k == 'percent' && $d > 0) {echo 'style="color: #080;"';};
                      ?>>
-                        <?php echo $d?>
+                        <?php echo $d == 'N/A' ? '-' : trim($d, 'B');?>
                      </td>
                   <?php endforeach ?>
 
@@ -183,7 +183,8 @@ asort($code);
          $('.overlay').fadeIn().children('img').attr('src', $(this).attr('src')).css('display', 'flex')
       })
       $('#datatable').DataTable({
-         paging: false
+         paging: false,
+         info: false
       })
    </script>
 
