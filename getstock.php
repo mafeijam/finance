@@ -79,7 +79,7 @@ asort($code);
                <?php foreach ($y->getFields() as $f) : ?>
                   <th <?php
                   if ($f == 'price') {echo 'style="color: #08192D;"';};
-                  $nosort = ['low', 'high', 'open', 'close', '52w low', '52w high', '50d avg', '200d avg'];
+                  $nosort = ['low', 'high', 'open', 'close', '52w low', '52w high', '50d avg', '200d avg', 'dividend'];
                   if (in_array($f, $nosort)) {echo 'class="no-sort"';};
                   ?>>
                      <?php echo $f ?>
@@ -102,7 +102,9 @@ asort($code);
                         elseif ($k == 'change' && $d > 0) {echo 'style="color: #227D51;"';}
                         elseif ($k == 'percent' && $d < 0) {echo 'style="color: #CB1B45;"';}
                         elseif ($k == 'percent' && $d > 0) {echo 'style="color: #227D51;"';}
+                        elseif (in_array($k, $nosort)) {echo 'style="color: #787878;"';}
                         elseif ($k == 'yield') {echo 'style="color: #C7802D; font-weight: 700;"';}
+                        elseif ($k == 'PE') {echo 'style="color: #405B55; font-weight: 700;"';}
                         elseif ($k == 'market cap. (B)') {$d = trim($d, 'B');};
                      ?>>
                         <?php echo $d == 'N/A' ? '-' : $d;?>
@@ -186,6 +188,12 @@ asort($code);
 
       var date = new Date()
 
+      var now = date.getHours()+date.getMinutes()/60
+
+      setInterval(function(){
+         now = date.getHours()+date.getMinutes()/60
+      }, 900000)
+
       if ($.inArray(date.getDay(), [1, 2, 3, 4, 5]) != '-1') {
          var refresh = setInterval(function(){
             $.getJSON('refresh.php').done(function(d){
@@ -204,7 +212,11 @@ asort($code);
 
             setLastUpdate($('#lastupdate'))
 
-            var now = date.getHours()+date.getMinutes()/60
+            now = date.getHours()+date.getMinutes()/60
+
+            if (now >= 16.5 || now <= 9) {
+               clearInterval(refresh)
+            }
 
          }, 900000)
 

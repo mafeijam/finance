@@ -3,7 +3,7 @@
 class YahooFinanceHK
 {
    protected $api = 'http://hk.finance.yahoo.com/d/quotes.csv?s=';
-   protected $info = 'snl1c1p2opghjkm3m4rdyj1';
+   protected $info = 'snl1c1p2opghjkm3m4rydj1';
    protected $fields = [
       'symbol',
       'name',
@@ -19,8 +19,8 @@ class YahooFinanceHK
       '50d avg',
       '200d avg',
       'PE',
-      'dividend',
       'yield',
+      'dividend',
       'market cap. (B)'
    ];
 
