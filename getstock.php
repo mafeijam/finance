@@ -69,7 +69,7 @@ asort($code);
                <?php endforeach ?>
                <th>chart</th>
                <th>info</th>
-               <th>refresh</th>
+               <th>refresh price</th>
             </tr>
          </thead>
 
@@ -83,9 +83,10 @@ asort($code);
                         elseif ($k == 'change' && $d < 0) {echo 'style="color: #f00;"';}
                         elseif ($k == 'change' && $d > 0) {echo 'style="color: #080;"';}
                         elseif ($k == 'percent' && $d < 0) {echo 'style="color: #f00;"';}
-                        elseif ($k == 'percent' && $d > 0) {echo 'style="color: #080;"';};
+                        elseif ($k == 'percent' && $d > 0) {echo 'style="color: #080;"';}
+                        elseif ($k == 'market cap. (B)') {$d = trim($d, 'B');};
                      ?>>
-                        <?php echo $d == 'N/A' ? '-' : trim($d, 'B');?>
+                        <?php echo $d == 'N/A' ? '-' : $d;?>
                      </td>
                   <?php endforeach ?>
 
@@ -99,7 +100,7 @@ asort($code);
                      </a>
                   </td>
 
-                  <td>
+                  <td class="refresh">
                      <i class="fa fa-refresh fa-lg" aria-hidden="true" style="cursor: pointer" data-id="<?php echo $id ?>"></i>
                   </td>
 
@@ -149,6 +150,33 @@ asort($code);
             console.log(d[id])
          })
       })
+
+      var ids = []
+      $('.refresh').each(function(k, v){
+         ids.push($(v).children('i').data('id'))
+      })
+
+      setInterval(function(){
+         $.getJSON('refresh.php').done(function(d){
+            $.each(ids, function(k, id){
+               var price = $('#'+id)
+               var change = price.next()
+               var percent = change.next()
+
+               price.html(d[id].price)
+               change.html(d[id].change)
+               percent.html(d[id].percent)
+
+               if (d[id].change > 0) {
+                  change.css('color', '#080')
+                  percent.css('color', '#080')
+               } else {
+                  change.css('color', '#f00')
+                  percent.css('color', '#f00')
+               }
+            })
+         })
+      }, 300000)
    </script>
 
 </body>
