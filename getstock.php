@@ -122,8 +122,8 @@ asort($code);
          </tbody>
 
       </table>
-      <div id="lastupdate"></div>
-      <div><a href="savestock.php">change stock list</a></div>
+      <div id="lastupdate"></div><br>
+      <div><a class="btn btn-primary" href="savestock.php">change stock list</a></div>
    </div>
 
    <div class="overlay">
