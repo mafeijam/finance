@@ -24,7 +24,7 @@ if (isset($_POST['save'])) {
 
          <div class="form-group">
             <input type="submit" name="save" value="save" class="btn btn-danger">
-            <a href="getstock.php" class="btn btn-primary">go back</a>
+            <a href="getstock.php" class="btn btn-primary">cancel</a>
          </div>
 
       </form>

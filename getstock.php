@@ -81,8 +81,8 @@ asort($code);
                   </th>
                <?php endforeach ?>
                <th class="no-sort">chart</th>
-               <th class="no-sort">info</th>
-               <th class="no-sort">refresh price</th>
+               <th class="no-sort"><i class="fa fa-info-circle fa-lg" aria-hidden="true"></i> info</th>
+               <th class="no-sort">refresh</th>
             </tr>
          </thead>
 
@@ -104,12 +104,15 @@ asort($code);
                   <?php endforeach ?>
 
                   <td>
-                     <img class="chart-s" height="25" src="<?php echo 'https://chart.finance.yahoo.com/z?s='.$data['symbol'].'&t=my&z=l' ?>">
+                     <img class="chart-s" height="30" src="<?php echo 'https://chart.finance.yahoo.com/z?s='.$data['symbol'].'&t=my&z=l' ?>">
                   </td>
 
                   <td>
                      <a class="icon" href="https://www.google.com.hk/finance?q=<?php echo $data['symbol'] ?>" target="_blank">
-                        <i class="fa fa-info-circle fa-lg" aria-hidden="true"></i>
+                        Google
+                     </a>
+                     <a class="icon" href="https://hk.finance.yahoo.com/q?s=<?php echo $id ?>&ql=1" target="_blank">
+                        Yahoo
                      </a>
                   </td>
 
@@ -122,7 +125,8 @@ asort($code);
          </tbody>
 
       </table>
-      <div id="lastupdate"></div><br>
+      <div id="lastupdate"></div>
+      <div><small>*prices will auto update in every 5 minutes within trading hour</small></div><br>
       <div><a class="btn btn-primary" href="savestock.php">change stock list</a></div>
    </div>
 
@@ -141,10 +145,12 @@ asort($code);
 
       $('#datatable').DataTable({
          lengthMenu: [[10, 25, 50, -1], [10, 25, 50, 'ALL']],
-         pageLength: 25,
+         pageLength: 10,
          columnDefs: [
-           {targets: 'no-sort', orderable: false}
-         ]
+           {targets: 'no-sort', orderable: false},
+           {targets: [2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19], searchable: false}
+         ],
+         dom: '<iflp<t>>'
       })
 
       $('.fa-refresh').click(function(){
