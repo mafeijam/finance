@@ -135,7 +135,11 @@ asort($code);
       </table>
       <div id="lastupdate"></div>
       <div><small>*prices will auto update in every 15 minutes within trading hour</small></div><br>
-      <div><a class="btn btn-primary" href="savestock.php">change stock list</a></div>
+      <div>
+         <a class="btn btn-primary" href="savestock.php">change stock list</a>
+         <a class="btn btn-info" href="https://github.com/mafeijam/finance" target="_blank">get source code</a>
+         <a id="refresh-all" class="btn btn-success">refresh all</a>
+      </div>
    </div>
 
    <div class="overlay">
@@ -194,6 +198,24 @@ asort($code);
          now = date.getHours()+date.getMinutes()/60
       }, 900000)
 
+      $('#refresh-all').click(function(){
+         $.getJSON('refresh.php').done(function(d){
+            $.each(ids, function(k, id){
+               var price = $('#'+id)
+               var change = price.next()
+               var percent = change.next()
+
+               price.html(d[id].price)
+               change.html(d[id].change)
+               percent.html(d[id].percent)
+
+               setColor(d[id].change, change, percent)
+            })
+         })
+
+         setLastUpdate($('#lastupdate'))
+      })
+
       if ($.inArray(date.getDay(), [1, 2, 3, 4, 5]) != '-1') {
          var refresh = setInterval(function(){
             $.getJSON('refresh.php').done(function(d){
@@ -241,13 +263,14 @@ asort($code);
       }
 
       function setLastUpdate(target) {
-         var m = String(date.getMinutes())
+         var d = new Date()
+         var m = String(d.getMinutes())
 
          if (m.length == 1) {
             m = '0'+m
          }
 
-         var lastupdate = date.getHours() + ':' + m
+         var lastupdate = d.getHours() + ':' + m
 
          target.text('last update at '+lastupdate)
       }
