@@ -228,7 +228,6 @@ $favorites = file('favorite.txt', FILE_IGNORE_NEW_LINES);
             price.on('animationend', function(){
                price.removeClass('blink')
             })
-            console.log(d[id])
          })
       })
 
@@ -346,10 +345,8 @@ $favorites = file('favorite.txt', FILE_IGNORE_NEW_LINES);
 
       $('.favorite').click(function(){
          var id = $(this).parent().siblings().last().children().data('id')
-         console.log(id)
          var s = $(this)
          $.getJSON('ajax-favorite.php', {f: id}).done(function(d){
-            console.log(d)
             if (s.hasClass('fa-star')) {
                s.removeClass('fa-star').addClass('fa-star-o').css('color', '#08192D').html('<span style="font-size: 0;">1</span>')
                rebuild()
@@ -357,9 +354,7 @@ $favorites = file('favorite.txt', FILE_IGNORE_NEW_LINES);
                s.removeClass('fa-star-o').addClass('fa-star').css('color', '#F7D94C').html('<span style="font-size: 0;">0</span>')
                rebuild()
             }
-
          })
-
       })
 
       function rebuild() {
