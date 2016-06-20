@@ -5,6 +5,8 @@ require 'Yahoo.php';
 $y = new YahooFinanceHK;
 $code = file('stock.txt', FILE_IGNORE_NEW_LINES);
 asort($code);
+
+$favorites = file('favorite.txt', FILE_IGNORE_NEW_LINES);
 ?>
 
 <!DOCTYPE html>
@@ -93,13 +95,15 @@ asort($code);
 <body>
    <div class="container-lg"">
       <div id="top-button">
-         <a class="btn btn-primary" href="savestock.php"><i class="mr-5 fa fa-list-alt fa-lg" aria-hidden="true"></i>change stock list</a>
+         <a class="btn btn-primary" href="savestock.php"><i class="mr-5 fa fa-list-alt fa-lg" aria-hidden="true"></i>edit stock list</a>
+         <a class="btn btn-warning" href="savefavorite.php"><i class="mr-5 fa fa-star-o fa-lg" aria-hidden="true"></i>edit favorite list</a>
          <a class="btn btn-info" href="https://github.com/mafeijam/finance" target="_blank"><i class="mr-5 fa fa-code fa-lg" aria-hidden="true"></i>get source code</a>
          <a id="refresh-all" class="btn btn-success"><i class="mr-5 fa fa-refresh fa-lg refresh-one" aria-hidden="true"></i>refresh all</a>
       </div>
       <table id="datatable" class="table table-hover">
          <thead>
             <tr>
+               <th><i class="fa fa-star fa-lg" aria-hidden="true"></i></th>
                <?php foreach ($y->getFields() as $f) : ?>
                   <th <?php
                   if ($f == 'price') {echo 'style="color: #08192D;"';};
@@ -118,9 +122,15 @@ asort($code);
          <tbody>
             <?php foreach ($y->get($code) as $data) : ?>
                <tr>
+                  <td>
+                     <?php
+                        $id = ltrim(trim($data['symbol'], '.hk'), '0');
+                        echo in_array($id, $favorites) ? '<i class="fa fa-star fa-lg" aria-hidden="true" style="color: #F7D94C;"></i>' : null;
+                     ?>
+                  </td>
                   <?php foreach ($data as $k => $d) : ?>
                      <td <?php
-                        $id = ltrim(trim($data['symbol'], '.hk'), '0');
+
                         if ($k == 'price') {echo 'style="color: #005CAF; font-weight: 700;" id="'.$id.'" class="price"';}
                         elseif ($k == 'change' && $d < 0) {echo 'style="color: #CB1B45;"';}
                         elseif ($k == 'change' && $d > 0) {echo 'style="color: #227D51;"';}
@@ -184,7 +194,8 @@ asort($code);
          ],
          dom: 'lfpit',
          scrollY: '615px',
-         scrollCollapse: true
+         scrollCollapse: true,
+         order: [[0, 'des']]
       })
 
       $('.refresh-one').click(function(){
