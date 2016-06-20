@@ -13,3 +13,5 @@ if (in_array($f, $favorites)) {
 }
 
 file_put_contents('favorite.txt', implode(PHP_EOL, $a));
+
+echo json_encode($a);
