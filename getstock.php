@@ -126,17 +126,18 @@ asort($code);
                         elseif ($k == 'change' && $d > 0) {echo 'style="color: #227D51;"';}
                         elseif ($k == 'percent' && $d < 0) {echo 'style="color: #CB1B45;"';}
                         elseif ($k == 'percent' && $d > 0) {echo 'style="color: #227D51;"';}
-                        elseif (in_array($k, $nosort)) {echo 'style="color: #787878;"';}
-                        elseif ($k == 'yield') {echo 'style="color: #C7802D; font-weight: 700;"';}
+                        elseif ($k != 'dividend' && in_array($k, $nosort)) {echo 'style="color: #373C38;"';}
+                        elseif ($k == 'yield') {echo 'style="color: #FFB11B; font-weight: 700;"';}
+                        elseif ($k == 'dividend') {echo 'style="color: #C7802D; font-weight: 700;"';}
                         elseif ($k == 'PE') {echo 'style="color: #405B55; font-weight: 700;"';}
-                        elseif ($k == 'market cap. (B)') {$d = trim($d, 'B');};
+                        elseif ($k == 'cap. (B)') {echo 'style="color: #4A225D;"'; $d = trim($d, 'B');};
                      ?>>
                         <?php echo $d == 'N/A' ? '-' : $d;?>
                      </td>
                   <?php endforeach ?>
 
                   <td>
-                     <img class="chart-s" height="30" src="<?php echo 'https://chart.finance.yahoo.com/z?s='.$data['symbol'].'&t=my&z=l' ?>">
+                     <img class="chart-s" height="35" src="<?php echo 'https://chart.finance.yahoo.com/z?s='.$data['symbol'].'&t=my&z=l' ?>">
                   </td>
 
                   <td>
@@ -158,7 +159,7 @@ asort($code);
 
       </table>
       <div id="lastupdate"></div>
-      <div><small>*prices will auto update in every 15 minutes within trading hour</small></div><br>
+      <div><small style="color: #828282;">*prices will auto update in every 15 minutes within trading hour</small></div><br>
    </div>
 
    <div class="overlay">
@@ -222,10 +223,10 @@ asort($code);
       })
 
       var date = new Date()
-
       var now = date.getHours()+date.getMinutes()/60
 
       setInterval(function(){
+         var date = new Date()
          now = date.getHours()+date.getMinutes()/60
       }, 900000)
 
@@ -321,7 +322,7 @@ asort($code);
 
          var lastupdate = d.getHours() + ':' + m
 
-         target.text('last update at '+lastupdate)
+         target.html('last update at <strong>'+lastupdate+'</strong>')
       }
 
    </script>

@@ -21,7 +21,7 @@ class YahooFinanceHK
       'PE',
       'yield',
       'dividend',
-      'market cap. (B)'
+      'cap. (B)'
    ];
 
    public function setInfo($info)
