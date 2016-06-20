@@ -80,6 +80,10 @@ $favorites = file('favorite.txt', FILE_IGNORE_NEW_LINES);
          margin-right: 10px;
       }
 
+      .fa-star, .fa-star-o {
+         cursor: pointer;
+      }
+
       @keyframes rotate {
          from {transform: rotate(0deg);}
          to {transform: rotate(360deg);}
@@ -125,7 +129,7 @@ $favorites = file('favorite.txt', FILE_IGNORE_NEW_LINES);
                   <td>
                      <?php
                         $id = ltrim(trim($data['symbol'], '.hk'), '0');
-                        echo in_array($id, $favorites) ? '<i class="fa fa-star fa-lg" aria-hidden="true" style="color: #F7D94C;"></i>' : null;
+                        echo in_array($id, $favorites) ? '<i class="favorite fa fa-star fa-lg" aria-hidden="true" style="color: #F7D94C;"><span style="font-size: 0;">0</span></i>' : '<i class="favorite fa fa-star-o fa-lg" aria-hidden="true""><span style="font-size: 0;">1</span></i>';
                      ?>
                   </td>
                   <?php foreach ($data as $k => $d) : ?>
@@ -194,8 +198,7 @@ $favorites = file('favorite.txt', FILE_IGNORE_NEW_LINES);
          ],
          dom: 'lfpit',
          scrollY: '615px',
-         scrollCollapse: true,
-         order: [[0, 'des']]
+         scrollCollapse: true
       })
 
       $('.refresh-one').click(function(){
@@ -218,9 +221,10 @@ $favorites = file('favorite.txt', FILE_IGNORE_NEW_LINES);
                   change.html(d[id].change)
                   percent.html(d[id].percent)
                   setColor(d[id].change, change, percent)
-               }, 300)
+               }, 300, function(){
+                  rebuild()
+               })
             }
-
             price.on('animationend', function(){
                price.removeClass('blink')
             })
@@ -290,6 +294,10 @@ $favorites = file('favorite.txt', FILE_IGNORE_NEW_LINES);
                   price.on('animationend', function(){
                      price.removeClass('blink')
                   })
+
+                  if (k+1 == ids.length) {
+                     rebuild()
+                  }
                })
             })
 
@@ -334,6 +342,39 @@ $favorites = file('favorite.txt', FILE_IGNORE_NEW_LINES);
          var lastupdate = d.getHours() + ':' + m
 
          target.html('last update at <strong>'+lastupdate+'</strong>')
+      }
+
+      $('.favorite').click(function(){
+         var id = $(this).parent().siblings().last().children().data('id')
+         console.log(id)
+         var s = $(this)
+         $.getJSON('ajax-favorite.php', {f: id}).done(function(d){
+            console.log(d)
+            if (s.hasClass('fa-star')) {
+               s.removeClass('fa-star').addClass('fa-star-o').css('color', '#08192D').html('<span style="font-size: 0;">1</span>')
+               rebuild()
+            } else {
+               s.removeClass('fa-star-o').addClass('fa-star').css('color', '#F7D94C').html('<span style="font-size: 0;">0</span>')
+               rebuild()
+            }
+
+         })
+
+      })
+
+      function rebuild() {
+         $('#datatable').DataTable({
+            lengthMenu: [[10, 25, 50, -1], [10, 25, 50, 'ALL']],
+            pageLength: -1,
+            columnDefs: [
+              {targets: 'no-sort', orderable: false},
+              {targets: [2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19], searchable: false}
+            ],
+            dom: 'lfpit',
+            scrollY: '615px',
+            scrollCollapse: true,
+            destroy: true
+         })
       }
 
    </script>
