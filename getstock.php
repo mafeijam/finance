@@ -62,17 +62,41 @@ asort($code);
       }
 
       .rotate {
-         animation: rotate 0.5s
+         animation: rotate 0.5s;
+      }
+
+      .blink {
+         animation: blink 1.5s ease-out;
+      }
+
+      #top-button {
+         text-align: right;
+         width: 100%;
+      }
+
+      .mr-5 {
+         margin-right: 10px;
       }
 
       @keyframes rotate {
          from {transform: rotate(0deg);}
          to {transform: rotate(360deg);}
       }
+
+      @keyframes blink {
+         0% {background: #FFFFFB;}
+         50% {background: #FAD689;}
+         100% {background: #FFFFFB;}
+      }
    </style>
 </head>
 <body>
    <div class="container-lg"">
+      <div id="top-button">
+         <a class="btn btn-primary" href="savestock.php"><i class="mr-5 fa fa-list-alt fa-lg" aria-hidden="true"></i>change stock list</a>
+         <a class="btn btn-info" href="https://github.com/mafeijam/finance" target="_blank"><i class="mr-5 fa fa-code fa-lg" aria-hidden="true"></i>get source code</a>
+         <a id="refresh-all" class="btn btn-success"><i class="mr-5 fa fa-refresh fa-lg refresh-one" aria-hidden="true"></i>refresh all</a>
+      </div>
       <table id="datatable" class="table table-hover">
          <thead>
             <tr>
@@ -125,7 +149,7 @@ asort($code);
                   </td>
 
                   <td class="refresh">
-                     <i class="fa fa-refresh fa-lg" aria-hidden="true" style="cursor: pointer" data-id="<?php echo $id ?>"></i>
+                     <i class="fa fa-refresh fa-lg refresh-one" aria-hidden="true" style="cursor: pointer" data-id="<?php echo $id ?>"></i>
                   </td>
 
                </tr>
@@ -135,11 +159,6 @@ asort($code);
       </table>
       <div id="lastupdate"></div>
       <div><small>*prices will auto update in every 15 minutes within trading hour</small></div><br>
-      <div>
-         <a class="btn btn-primary" href="savestock.php">change stock list</a>
-         <a class="btn btn-info" href="https://github.com/mafeijam/finance" target="_blank">get source code</a>
-         <a id="refresh-all" class="btn btn-success">refresh all</a>
-      </div>
    </div>
 
    <div class="overlay">
@@ -162,25 +181,37 @@ asort($code);
            {targets: 'no-sort', orderable: false},
            {targets: [2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19], searchable: false}
          ],
-         dom: '<iflp<t>>',
-         scrollY: '615px'
+         dom: 'lfpit',
+         scrollY: '615px',
+         scrollCollapse: true
       })
 
-      $('.fa-refresh').click(function(){
+      $('.refresh-one').click(function(){
          var id = $(this).data('id')
          var price = $('#'+id)
          var change = price.next()
          var percent = change.next()
          var $this = $(this)
          $(this).addClass('rotate')
-         $(this).one('animationend', function(){
+         $(this).on('animationend', function(){
             $this.removeClass('rotate')
          })
          $.getJSON('refresh.php').done(function(d){
-            price.html(d[id].price)
-            change.html(d[id].change)
-            percent.html(d[id].percent)
-            setColor(d[id].change, change, percent)
+            var oldprice = price.text().trim()
+
+            if (oldprice != d[id].price) {
+               price.addClass('blink')
+               setTimeout(function(){
+                  price.html(d[id].price)
+                  change.html(d[id].change)
+                  percent.html(d[id].percent)
+                  setColor(d[id].change, change, percent)
+               }, 300)
+            }
+
+            price.on('animationend', function(){
+               price.removeClass('blink')
+            })
             console.log(d[id])
          })
       })
@@ -204,12 +235,21 @@ asort($code);
                var price = $('#'+id)
                var change = price.next()
                var percent = change.next()
+               var oldprice = price.text().trim()
 
-               price.html(d[id].price)
-               change.html(d[id].change)
-               percent.html(d[id].percent)
+               if (oldprice != d[id].price) {
+                  price.addClass('blink')
+                  setTimeout(function(){
+                     price.html(d[id].price)
+                     change.html(d[id].change)
+                     percent.html(d[id].percent)
+                     setColor(d[id].change, change, percent)
+                  }, 300)
+               }
 
-               setColor(d[id].change, change, percent)
+               price.on('animationend', function(){
+                  price.removeClass('blink')
+               })
             })
          })
 
@@ -223,12 +263,21 @@ asort($code);
                   var price = $('#'+id)
                   var change = price.next()
                   var percent = change.next()
+                  var oldprice = price.text().trim()
 
-                  price.html(d[id].price)
-                  change.html(d[id].change)
-                  percent.html(d[id].percent)
+                  if (oldprice != d[id].price) {
+                     price.addClass('blink')
+                     setTimeout(function(){
+                        price.html(d[id].price)
+                        change.html(d[id].change)
+                        percent.html(d[id].percent)
+                        setColor(d[id].change, change, percent)
+                     }, 300)
+                  }
 
-                  setColor(d[id].change, change, percent)
+                  price.on('animationend', function(){
+                     price.removeClass('blink')
+                  })
                })
             })
 
