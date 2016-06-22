@@ -16,85 +16,11 @@ $favorites = file('favorite.txt', FILE_IGNORE_NEW_LINES);
    <title>Quotes</title>
    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.12/css/dataTables.bootstrap.min.css">
+   <link rel="stylesheet" href="main.css">
    <script src="https://code.jquery.com/jquery-3.0.0.min.js"></script>
    <script src="https://use.fontawesome.com/b19c0c0ce2.js"></script>
    <script src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
    <script src="https://cdn.datatables.net/1.10.12/js/dataTables.bootstrap.min.js"></script>
-   <style>
-      body {
-         background: #fffffb;
-         color: #08192D;
-      }
-
-      .overlay {
-         width: 100vw;
-         height: 100vh;
-         z-index: 99;
-         background: rgba(0,0,0,0.2);
-         position: fixed;
-         top: 0;
-         left: 0;
-         align-items: center;
-         display: none;
-      }
-
-      .chart {
-         width: 800px;
-         margin: auto;
-         padding: 20px;
-         background: #fff;
-         border-radius: 10px;
-         position: relative;
-         top: 50%;
-         transform: translate(0, -70%);
-      }
-
-      .chart-s {
-         cursor: zoom-in;
-      }
-
-      .container-lg {
-         max-width: 90%;
-         margin: 30px auto;
-      }
-
-      .icon {
-         display: block;
-         width: 100%;
-      }
-
-      .rotate {
-         animation: rotate 0.5s;
-      }
-
-      .blink {
-         animation: blink 1.5s ease-out;
-      }
-
-      #top-button {
-         text-align: right;
-         width: 100%;
-      }
-
-      .mr-5 {
-         margin-right: 10px;
-      }
-
-      .fa-star, .fa-star-o {
-         cursor: pointer;
-      }
-
-      @keyframes rotate {
-         from {transform: rotate(0deg);}
-         to {transform: rotate(360deg);}
-      }
-
-      @keyframes blink {
-         0% {background: #FFFFFB;}
-         50% {background: #FAD689;}
-         100% {background: #FFFFFB;}
-      }
-   </style>
 </head>
 <body>
    <div class="container-lg"">
@@ -128,7 +54,6 @@ $favorites = file('favorite.txt', FILE_IGNORE_NEW_LINES);
                <th><i class="fa fa-star fa-lg" aria-hidden="true"></i></th>
                <?php foreach ($y->getFields() as $f) : ?>
                   <th <?php
-                     if ($f == 'price') {echo 'style="color: #08192D;"';};
                      $nosort = ['low', 'high', 'open', 'close', '52w low', '52w high', '50d avg', '200d avg', 'dividend'];
                      if (in_array($f, $nosort)) {echo 'class="no-sort"';};
                   ?>>
@@ -153,16 +78,12 @@ $favorites = file('favorite.txt', FILE_IGNORE_NEW_LINES);
                   </td>
                   <?php foreach ($data as $k => $d) : ?>
                      <td <?php
-
-                        if ($k == 'price') {echo 'style="color: #005CAF; font-weight: 700;" id="'.$id.'" class="price"';}
-                        elseif ($k == 'change' && $d < 0) {echo 'style="color: #CB1B45;"';}
+                        if ($k == 'change' && $d < 0) {echo 'style="color: #CB1B45;"';}
                         elseif ($k == 'change' && $d > 0) {echo 'style="color: #227D51;"';}
                         elseif ($k == 'percent' && $d < 0) {echo 'style="color: #CB1B45;"';}
                         elseif ($k == 'percent' && $d > 0) {echo 'style="color: #227D51;"';}
                         elseif ($k != 'dividend' && in_array($k, $nosort)) {echo 'style="color: #373C38;"';}
-                        elseif ($k == 'yield') {echo 'style="color: #FFB11B; font-weight: 700;"';}
                         elseif ($k == 'dividend') {echo 'style="color: #C7802D; font-weight: 700;"';}
-                        elseif ($k == 'PE') {echo 'style="color: #405B55; font-weight: 700;"';}
                         elseif ($k == 'cap. (B)') {echo 'style="color: #4A225D;"'; $d = trim($d, 'B');};
                      ?>>
                         <?php echo $d == 'N/A' ? '-' : $d;?>
@@ -201,200 +122,10 @@ $favorites = file('favorite.txt', FILE_IGNORE_NEW_LINES);
    </div>
 
    <div class="overlay">
-      <img class="chart" src="">
+      <img class="chart">
    </div>
 
-   <script>
-      $('.overlay').click(function(){
-         $(this).fadeOut()
-      })
-
-      $('img').click(function(){
-         $('.overlay').fadeIn().children('img').attr('src', $(this).attr('src')).css('display', 'flex')
-      })
-
-      var dt = $('#datatable').DataTable({
-         lengthMenu: [[10, 25, 50, -1], [10, 25, 50, 'ALL']],
-         pageLength: -1,
-         columnDefs: [
-           {targets: 'no-sort', orderable: false},
-           {targets: [2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19], searchable: false}
-         ],
-         dom: 'lfpit',
-         scrollY: '570px',
-         scrollCollapse: true
-      })
-
-      $('.refresh-one').click(function(){
-         var id = $(this).data('id')
-         var price = $('#'+id)
-         var change = price.next()
-         var percent = change.next()
-         var $this = $(this)
-         $(this).addClass('rotate')
-         $(this).on('animationend', function(){
-            $this.removeClass('rotate')
-         })
-         $.getJSON('refresh.php').done(function(d){
-            var oldprice = price.text().trim()
-
-            if (oldprice != d[id].price) {
-               price.addClass('blink')
-               setTimeout(function(){
-                  price.html(d[id].price)
-                  change.html(d[id].change)
-                  percent.html(d[id].percent)
-                  setColor(d[id].change, change, percent)
-               }, 300)
-            }
-            price.on('animationend', function(){
-               price.removeClass('blink')
-            })
-         })
-      })
-
-      var ids = []
-      $('.refresh').each(function(k, v){
-         ids.push($(v).children('i').data('id'))
-      })
-
-      var date = new Date()
-      var now = date.getHours()+date.getMinutes()/60
-
-      setInterval(function(){
-         var date = new Date()
-         now = date.getHours()+date.getMinutes()/60
-      }, 900000)
-
-      $('#refresh-all').click(function(){
-         $.getJSON('refresh.php').done(function(d){
-            $.each(ids, function(k, id){
-               refreshAll(id, d)
-            })
-         })
-
-         setLastUpdate($('#lastupdate'))
-      })
-
-      if ($.inArray(date.getDay(), [1, 2, 3, 4, 5]) != '-1') {
-         var refresh = setInterval(function(){
-            $.getJSON('refresh.php').done(function(d){
-               $.each(ids, function(k, id){
-                  refreshAll(id, d)
-                  if (k+1 == ids.length) {
-                     rebuild()
-                  }
-               })
-            })
-
-            setLastUpdate($('#lastupdate'))
-
-            now = date.getHours()+date.getMinutes()/60
-
-            if (now >= 16.5 || now <= 9) {
-               clearInterval(refresh)
-            }
-
-         }, 900000)
-
-         if (now >= 16.5 || now <= 9) {
-            clearInterval(refresh)
-         }
-      }
-
-      setLastUpdate($('#lastupdate'))
-
-      $('.favorite').click(function(){
-         var id = $(this).parent().siblings().last().children().data('id')
-         var s = $(this)
-         $.getJSON('ajax-favorite.php', {f: id}).done(function(d){
-            if (s.hasClass('fa-star')) {
-               s.removeClass('fa-star').addClass('fa-star-o').css('color', '#08192D').html('<span style="font-size: 0;">1</span>')
-               rebuild()
-            } else {
-               s.removeClass('fa-star-o').addClass('fa-star').css('color', '#F7D94C').html('<span style="font-size: 0;">0</span>')
-               rebuild()
-            }
-         })
-         console.log('add')
-      })
-
-      function setColor(value, change, percent) {
-         if (value > 0) {
-            change.css('color', '#227D51')
-            percent.css('color', '#227D51')
-         } else if (value < 0) {
-            change.css('color', '#CB1B45')
-            percent.css('color', '#CB1B45')
-         } else {
-            change.css('color', '#08192D')
-            percent.css('color', '#08192D')
-         }
-      }
-
-      function setLastUpdate(target) {
-         var d = new Date()
-         var m = String(d.getMinutes())
-
-         if (m.length == 1) {
-            m = '0'+m
-         }
-
-         var lastupdate = d.getHours() + ':' + m
-
-         target.html('last update at <strong>'+lastupdate+'</strong>')
-      }
-
-      function rebuild() {
-         $('#datatable').DataTable({
-            lengthMenu: [[10, 25, 50, -1], [10, 25, 50, 'ALL']],
-            pageLength: -1,
-            columnDefs: [
-              {targets: 'no-sort', orderable: false},
-              {targets: [2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19], searchable: false}
-            ],
-            dom: 'lfpit',
-            scrollY: '570px',
-            scrollCollapse: true,
-            destroy: true
-         })
-      }
-
-      function refreshAll(id, d) {
-         var price = $('#'+id)
-         var change = price.next()
-         var percent = change.next()
-         var oldprice = price.text().trim()
-
-         if (oldprice != d[id].price) {
-            price.addClass('blink')
-            setTimeout(function(){
-               price.html(d[id].price)
-               change.html(d[id].change)
-               percent.html(d[id].percent)
-               setColor(d[id].change, change, percent)
-            }, 300)
-         }
-
-         price.on('animationend', function(){
-            price.removeClass('blink')
-         })
-      }
-
-      $('#add').click(function(){
-         console.log($('#addcode').val())
-      })
-
-      $('.remove').click(function(){
-         var id = $(this).data('id')
-         var row = $(this).parents('tr')
-         $.get('ajax-remove.php', {r: id}).done(function(d){
-            dt.row(row).remove().draw()
-            console.log(d)
-         })
-      })
-
-   </script>
+   <script src="main.js"></script>
 
 </body>
 </html>
