@@ -191,7 +191,9 @@ $('.remove').click(function(){
    var id = $(this).data('id')
    var row = $(this).parents('tr')
    $.get('ajax-remove.php', {r: id}).done(function(d){
-      dt.row(row).remove().draw()
+      row.fadeOut(500, function(){
+         dt.row(row).remove().draw()
+      })
       console.log(d)
    })
 })
